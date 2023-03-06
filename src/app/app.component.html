@@ -1,4 +1,61 @@
-<!-- <p>Hola como estas</p> -->
+<div class="curve-selector">
+  <table class="table table-bordered">
+    <thead>
+      <tr >
+        <th scope="col" style="width: 17%;">
+          <div class="dropdown">
+            <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Curva a evaluar
+            </button>
+            <ul class="dropdown-menu">
+              <li *ngFor="let curve of curveOptions"><a class="dropdown-item" href="#" (click)="pickCurve(curve)">{{curve}}</a></li>
+            </ul>
+          </div>
+        </th>
+        <th scope="col" style="width: 29%;">
+          <div class="input-group" >
+            <input 
+              class="form-control"
+              placeholder="Fecha a evaluar"
+              name="dp"
+              [(ngModel)]="pickedDate"
+              ngbDatepicker
+              #d="ngbDatepicker"
+            />
+            <button class="btn btn-outline-secondary bi bi-calendar3" (click)="d.toggle()" type="button">
+              
+            </button>
+          </div>
+          
+        </th>
+        <th scope="col" style=" white-space: nowrap; cursor: pointer; width: 12%;"><button type="button" class="btn btn-outline-primary" style="width: 100%;">1 mes</button></th>
+        <th scope="col" style=" white-space: nowrap; cursor: pointer; width: 12%;"><button type="button" class="btn btn-outline-secondary" style="width: 100%;">6 meses</button></th>
+        <td scope="col" class="align-middle" style=" white-space: nowrap; cursor: pointer; width: 12%;">
+          <div class="dropdown">
+            <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+              Listado
+            </button>
+            <ul class="dropdown-menu">
+              <li *ngFor="let curve of curveList; let i = index"><a class="dropdown-item" href="#"><button type="button" class="btn-close" style="transform: scale(0.6);" (click)="removeCurve(i)"></button>{{curve.name}} - {{curve.date | date: 'shortDate'}} </a></li>
+            </ul>
+          </div>
+        </td>
+        <th scope="col" class="align-middle" style="white-space: nowrap; cursor: pointer; width: 12%;" >SPREAD</th>
+
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td scope="row" class="align-middle"> <span *ngIf="pickedCurve" style="padding-left: 8%; font-weight: bold; color:gray">{{pickedCurve}}</span></td>
+        <td class="align-middle"><span *ngIf="pickedDate" style="padding-left: 5%; font-weight: bold; color:gray">{{ pickedDate.year+"/"+pickedDate.month+"/"+pickedDate.day }}</span></td>
+        <th style="white-space: nowrap; "><button type="button" class="btn btn-outline-success" style="width: 100%;">3 meses</button></th>
+        <th style="white-space: nowrap; "><button type="button" class="btn btn-outline-danger" style="width: 100%;">1 año</button></th>
+        <td class="align-middle"> <span style="font-size: small;"><button type="button" class="btn btn-dark" style="width: 100%;" (click)="addCurve()" [disabled]="pickedDate==null || pickedCurve==null">Añadir</button></span></td>
+        <td></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
 <div class="chart-container">
   <canvas  id="MyChart" style="width: 100%;">{{ chart }}</canvas>
 </div>

@@ -5,7 +5,8 @@
 export const environment = {
   production: false,
   isinApi: 'http://localhost:3000/isines/',
-  facApi: 'http://localhost:3000/faciales/'
+  facApi: 'http://localhost:3000/faciales/',
+  curves: ["BAAA2", "BAAA3", "BAAA12", "CEC", "CECUVR"]
 };
 
 /*

@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { NgbDateStruct } from '@ng-bootstrap/ng-bootstrap';
 import Chart from 'chart.js/auto';
+import { environment } from 'src/environments/environment';
 
 const plazo = 11500;
 const b0= 12.19;
@@ -7,6 +9,16 @@ const b1 = 1.52;
 const b2 = 4.33;
 const t = 5.91;
 // const fs = require('fs');
+
+export class Curve {
+  date!: Date;
+  name!: string;
+  constructor(name: string, date:Date){
+    this.date=date;
+    this.name=name;
+  }
+}
+
 
 @Component({
   selector: 'app-root',
@@ -17,7 +29,29 @@ const t = 5.91;
 export class AppComponent implements OnInit{
   
   title = 'curve-compare';
+  pickedDate !: NgbDateStruct;
+  pickedCurve !: string;
   public chart: any;
+  curveOptions = environment.curves;
+  curveList : Curve[] = [];
+
+
+  pickCurve(curve: string){
+    this.pickedCurve=curve;
+  }
+
+  addCurve(){
+    if(this.pickedDate.day<10){
+      this.curveList.push(new Curve(this.pickedCurve, new Date(`${this.pickedDate.year}-${this.pickedDate.month}-0${this.pickedDate.day}`)));
+    }else{
+      this.curveList.push(new Curve(this.pickedCurve, new Date(`${this.pickedDate.year}-${this.pickedDate.month}-${this.pickedDate.day}`)));
+    }
+    console.log(JSON.stringify(this.curveList))
+  }
+
+  removeCurve(index:number){
+    this.curveList.splice(index,1);
+  }
 
   arrayRange = (start:number, stop:number, step:number) =>
     Array.from(
@@ -28,9 +62,7 @@ export class AppComponent implements OnInit{
   dias = this.arrayRange(1, plazo, 30);
   curva : Number[] = []
   curva2: Number [] = []
-  curva3: Number [] = []
-  curva4: Number [] = []
-  curva5: Number [] = []
+  
   años : Number[] = []
   fillCurve(){
     for(let dia of this.dias){
@@ -41,13 +73,7 @@ export class AppComponent implements OnInit{
       this.curva.push(valor);
       //let valor2 = b0 + (b1+b2)*((1-Math.exp(-1*(año/t)))/(año/t)) - b2*Math.exp(-1*(año/t)) +1
       let valor2 = valor +0.5
-      let valor3 = valor +1.0
-      let valor4 = valor +1.5
-      let valor5 = valor +2.0
-      this.curva2.push(valor2);
-      this.curva3.push(valor3);
-      this.curva4.push(valor4);
-      this.curva5.push(valor5);
+      this.curva2.push(valor2)
     }
   }
 
@@ -76,27 +102,6 @@ export class AppComponent implements OnInit{
             backgroundColor: 'red',
             borderWidth: 1,
             borderColor: 'red',
-          },
-          {
-            label: "Curva 3",
-            data: this.curva3,
-            backgroundColor: 'green',
-            borderWidth: 1,
-            borderColor: 'green',
-          },
-          {
-            label: "Curva 4",
-            data: this.curva4,
-            backgroundColor: 'gray',
-            borderWidth: 1,
-            borderColor: 'gray',
-          },
-          {
-            label: "Curva 5",
-            data: this.curva5,
-            backgroundColor: 'yellow',
-            borderWidth: 1,
-            borderColor: 'yellow',
           }
         ]
       },
