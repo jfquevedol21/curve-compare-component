@@ -55,24 +55,96 @@ export class AppComponent implements OnInit{
     this.curveService.getCurve(this.pickedCurve).subscribe((response:Curve)=>{
       this.dias = this.arrayRange(1, response.days, 30);
 
+      
 
-      for(let dia of this.dias){
-        let año = dia/365
-        this.first==0?this.años.push(this.round(año,1)):null;
-        let valor = response.beta_0 + (response.beta_1+response.beta_2)*((1-Math.exp(-1*(año/response.tau)))/(año/response.tau)) - response.beta_2*Math.exp(-1*(año/response.tau))
-        this.curva.push(valor);
+      switch(this.pickedCurve){
+
+        case 'CECUVR':
+        case 'CEC':
+          for(let dia of this.dias){
+            let año = dia/365
+            this.first==0?this.años.push(this.round(año,1)):null;
+            //let valor = response.beta_0 + (response.beta_1+response.beta_2)*((1-Math.exp(-1*(año/response.tau)))/(año/response.tau)) - response.beta_2*Math.exp(-1*(año/response.tau))
+            let valor = response.beta_0 + ( (response.beta_1+response.beta_2)*( (1-Math.exp(-1*año/response.tau))/(año/response.tau) ) ) - response.beta_2*Math.exp(-1*año/response.tau)
+            valor = Math.exp(valor/100)-1;
+            this.curva.push(valor*100);
+            }
+            this.first=this.first+1;
+            this.chart.config._config.data.datasets.push({
+              label: this.pickedCurve + "-" + `${this.pickedDate.year}-${this.pickedDate.month >=10?this.pickedDate.month:"0"+this.pickedDate.month.toString()}-${this.pickedDate.day}` ,
+              data: this.curva,
+              backgroundColor: this.pickedCurve=='CECUVR'?'gray':'blue',
+              borderWidth: 1,
+              borderColor: this.pickedCurve=='CECUVR'?'gray':'blue',
+            });
+            this.chart.update();
+            this.curva=[];
+          
+            break;
+          case 'BAAA3':
+          case 'BAAA12':
+          case 'BAAA2':
+            for(let dia of this.dias){
+              let año = dia/365
+              this.first==0?this.años.push(this.round(año,1)):null;
+              //let valor = response.beta_0 + (response.beta_1+response.beta_2)*((1-Math.exp(-1*(año/response.tau)))/(año/response.tau)) - response.beta_2*Math.exp(-1*(año/response.tau))
+              let valor = response.beta_0 + ( (response.beta_1+response.beta_2)*( (1-Math.exp(-1*año/response.tau))/(año/response.tau) ) ) - response.beta_2*Math.exp(-1*año/response.tau)
+              //valor = Math.exp(valor/100)-1;
+              let valor_corp = response.beta_0_r! + ( (response.beta_1_r!+response.beta_2_r!)*( (1-Math.exp(-1*año/response.tau_r!))/(año/response.tau_r!) ) ) - response.beta_2_r!*Math.exp(-1*año/response.tau_r!)
+              let valor_sum = (valor/100)+(valor_corp/100)
+              
+              
+              valor_sum = Math.exp(valor_sum)-1
+              this.curva.push(valor_sum*100);
+              }
+              this.first=this.first+1;
+              let color= ""
+              switch(this.pickedCurve){
+                case 'BAAA12': 
+                  color = 'red';
+                  break;
+                case 'BAAA2':
+                  color = 'purple';
+                  break;
+                case 'BAAA3':
+                  color = 'green';
+                  break;
+                default:
+                  null;
+              }
+              this.chart.config._config.data.datasets.push({
+                label: this.pickedCurve + "-" + `${this.pickedDate.year}-${this.pickedDate.month >=10?this.pickedDate.month:"0"+this.pickedDate.month.toString()}-${this.pickedDate.day}` ,
+                data: this.curva,
+                backgroundColor: color,
+                borderWidth: 1,
+                borderColor: color,
+              });
+              this.chart.update();
+              this.curva=[];
+              break;
+        default:
+          null
+
+
       }
-      this.first=this.first+1;
-      this.chart.config._config.data.datasets.push({
-        label: "Curva 3",
-        data: this.curva,
-        backgroundColor: 'gray',
-        borderWidth: 1,
-        borderColor: 'gray',
-      });
-      this.chart.update();
-      this.curva=[];
-      console.log(response)
+
+      // for(let dia of this.dias){
+      //   let año = dia/365
+      //   this.first==0?this.años.push(this.round(año,1)):null;
+      //   let valor = response.beta_0 + (response.beta_1+response.beta_2)*((1-Math.exp(-1*(año/response.tau)))/(año/response.tau)) - response.beta_2*Math.exp(-1*(año/response.tau))
+      //   this.curva.push(valor);
+      // }
+      // this.first=this.first+1;
+      // this.chart.config._config.data.datasets.push({
+      //   label: "Curva 3",
+      //   data: this.curva,
+      //   backgroundColor: 'gray',
+      //   borderWidth: 1,
+      //   borderColor: 'gray',
+      // });
+      // this.chart.update();
+      // this.curva=[];
+      // console.log(response)
     });
 
     
@@ -89,8 +161,44 @@ export class AppComponent implements OnInit{
     console.log(JSON.stringify(this.curveList))
   }
 
+  addPastCurve(tiempo:number){
+    switch(tiempo){
+      case 1:
+        if(this.pickedDate.month==1){
+          --this.pickedDate.year;
+          this.pickedDate.month=12;
+        }else{
+          --this.pickedDate.month;
+        }
+        break;
+      case 3:
+        if(this.pickedDate.month<=3){
+          --this.pickedDate.year;
+          this.pickedDate.month=12+this.pickedDate.month-3;
+        }else{
+          this.pickedDate.month=this.pickedDate.month-3;
+        }
+        break;
+      case 6:
+        if(this.pickedDate.month<=6){
+          --this.pickedDate.year;
+          this.pickedDate.month=12+this.pickedDate.month-6;
+        }else{
+          this.pickedDate.month=this.pickedDate.month-6;
+        }
+        break;
+      case 12:
+        --this.pickedDate.year;
+    }
+    this.addCurve()
+  }
+  
+
   removeCurve(index:number){
     this.curveList.splice(index,1);
+    this.chart.config._config.data.datasets.splice(index,1);
+    this.chart.update();
+
   }
 
   arrayRange = (start:number, stop:number, step:number) =>
