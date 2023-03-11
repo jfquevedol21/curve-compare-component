@@ -28,8 +28,8 @@
           </div>
           
         </th>
-        <th scope="col" style=" white-space: nowrap; cursor: pointer; width: 12%;"><button type="button" class="btn btn-outline-primary" style="width: 100%; " (click)="addPastCurve(1)" [disabled]="pickedDate==null || pickedCurve==null">1 mes</button></th>
-        <th scope="col" style=" white-space: nowrap; cursor: pointer; width: 12%;"><button type="button" class="btn btn-outline-secondary" style="width: 100%;" (click)="addPastCurve(6)" [disabled]="pickedDate==null || pickedCurve==null">6 meses</button></th>
+        <th scope="col" style=" white-space: nowrap; cursor: pointer; width: 12%;"><button type="button" class="btn btn-outline-primary" style="width: 100%; " (click)="addPastCurve(1)" [disabled]="pickedDate==null || pickedCurve==null || curveList.length==10">1 mes</button></th>
+        <th scope="col" style=" white-space: nowrap; cursor: pointer; width: 12%;"><button type="button" class="btn btn-outline-secondary" style="width: 100%;" (click)="addPastCurve(6)" [disabled]="pickedDate==null || pickedCurve==null || curveList.length==10">6 meses</button></th>
         <td scope="col" class="align-middle" style=" white-space: nowrap; cursor: pointer; width: 12%;">
           <div class="dropdown">
             <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -48,9 +48,9 @@
       <tr>
         <td scope="row" class="align-middle"> <span *ngIf="pickedCurve" style="padding-left: 8%; font-weight: bold; color:gray">{{pickedCurve}}</span></td>
         <td class="align-middle"><span *ngIf="pickedDate" style="padding-left: 5%; font-weight: bold; color:gray">{{ pickedDate.year+"/"+ (this.pickedDate.month >=10?this.pickedDate.month:"0"+this.pickedDate.month.toString())+"/"+pickedDate.day }}</span></td>
-        <th style="white-space: nowrap; "><button type="button" class="btn btn-outline-success" style="width: 100%;" (click)="addPastCurve(3)" [disabled]="pickedDate==null || pickedCurve==null">3 meses</button></th>
-        <th style="white-space: nowrap; "><button type="button" class="btn btn-outline-danger" style="width: 100%;" (click)="addPastCurve(12)" [disabled]="pickedDate==null || pickedCurve==null">1 año</button></th>
-        <td class="align-middle"> <span style="font-size: small;"><button type="button" class="btn btn-dark" style="width: 100%;" (click)="addCurve()" [disabled]="pickedDate==null || pickedCurve==null">Añadir</button></span></td>
+        <th style="white-space: nowrap; "><button type="button" class="btn btn-outline-success" style="width: 100%;" (click)="addPastCurve(3)" [disabled]="pickedDate==null || pickedCurve==null || curveList.length==10">3 meses</button></th>
+        <th style="white-space: nowrap; "><button type="button" class="btn btn-outline-danger" style="width: 100%;" (click)="addPastCurve(12)" [disabled]="pickedDate==null || pickedCurve==null || curveList.length==10">1 año</button></th>
+        <td class="align-middle"> <span style="font-size: small;"><button type="button" class="btn btn-dark" style="width: 100%;" (click)="addCurve()" [disabled]="pickedDate==null || pickedCurve==null || curveList.length==10">Añadir</button></span></td>
         <td></td>
       </tr>
     </tbody>

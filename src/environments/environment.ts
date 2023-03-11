@@ -6,7 +6,8 @@ export const environment = {
   production: false,
   curveApi: 'http://localhost:3000/curves/',
   facApi: 'http://localhost:3000/faciales/',
-  curves: ["BAAA2", "BAAA3", "BAAA12", "CEC", "CECUVR"]
+  curves: ["BAAA2", "BAAA3", "BAAA12", "CEC", "CECUVR"],
+  colors: ['#3e3f4d', '#a142f4', '#54a47e', '#e08741', '#c15696', '#3d8fb3', '#bfab3f', '#a94040', '#689ca7', '#d36d6d']
 };
 
 /*
