@@ -13,6 +13,7 @@ const b2 = 4.33;
 const t = 5.91;
 // const fs = require('fs');
 
+
 export class Curve_ {
   date!: Date;
   name!: string;
@@ -34,13 +35,17 @@ export class AppComponent implements OnInit {
   title = 'curve-compare';
   pickedDate !: NgbDateStruct;
   pickedCurve !: string;
-  public chart: any;
+  public chart: any; // grafica de comparación de curvas
   curveOptions = environment.curves;
   colors = environment.colors;
   curveList: Curve_[] = [];
   curveInfo: Curve[] = [];
   first = 0;
   maxDays =0;
+
+  verSpread = false;
+  spread : number[]=[];
+  public spreadChart: any; //gráfica de spread
 
   constructor(private curveService: CurveService) { }
 
@@ -65,6 +70,33 @@ export class AppComponent implements OnInit {
     }
   }
 
+  calculateSpread(){
+    this.spread=[];
+    let curveArray = this.chart.config._config.data.datasets;
+    let data0 = curveArray[0].data;
+    let data1 = curveArray[1].data;
+    let length = data0.length<=data1.length?data0.length:data1.length;
+    console.log(data1.length, data0.length, length)
+
+    for(let i = 0; i < length; i++){
+      this.spread.push(Math.abs(data0[i]-data1[i]));
+    }
+    this.verSpread = !this.verSpread
+    console.log("sp len: ", this.spread.length)
+
+    this.spreadChart.config._config.data.datasets.push({
+      label: this.pickedCurve + "-" + `${{ ...this.pickedDate }.year}-${{ ...this.pickedDate }.month >= 10 ? { ...this.pickedDate }.month : "0" + { ...this.pickedDate }.month.toString()}-${{ ...this.pickedDate }.day}`,
+      data: this.spread,
+      backgroundColor:  this.colors[this.curveList.length-1],
+      borderWidth: 1,
+      borderColor:  this.colors[this.curveList.length-1],
+      fill: true
+    });
+    this.spreadChart.update();
+
+    console.log(this.spread);
+  }
+
   addCurve(_callback?: any) {
     let tempCurve = new Curve_(this.pickedCurve, new Date(`${this.pickedDate.year}-${this.pickedDate.month}-${this.pickedDate.day}`));
     if (!this.curveList.some((curve: Curve_) => { return (curve.name == tempCurve.name && curve.date.getTime() == tempCurve.date.getTime()) })) {
@@ -87,31 +119,23 @@ export class AppComponent implements OnInit {
         }else{
           if(this.maxDays<response.days){
             this.maxDays=response.days;
-            console.log(this.años.length)
             this.años=[];
             diasAño=this.arrayRange(1, this.maxDays, 30);
             
             for(let dia of diasAño){
               let año = dia / 365
               this.años.push(this.round(año, 1));
-              //console.log("ENTRE ACA")
             }
-            console.log(this.años.length)
             this.chart.config._config.data.labels=this.años;
             this.chart.update();
           }
         }
         
-        console.log(this.maxDays);
         switch (this.pickedCurve) {
           case 'CECUVR':
           case 'CEC':
-            
-            
-
             for (let dia of this.dias) {
               let año = dia / 365
-              //let valor = response.beta_0 + (response.beta_1+response.beta_2)*((1-Math.exp(-1*(año/response.tau)))/(año/response.tau)) - response.beta_2*Math.exp(-1*(año/response.tau))
               let valor = response.beta_0 + ((response.beta_1 + response.beta_2) * ((1 - Math.exp(-1 * año / response.tau)) / (año / response.tau))) - response.beta_2 * Math.exp(-1 * año / response.tau)
               valor = Math.exp(valor / 100) - 1;
               this.curva.push(valor * 100);
@@ -133,31 +157,14 @@ export class AppComponent implements OnInit {
           case 'BAAA2':
             for (let dia of this.dias) {
               let año = dia / 365
-              //this.first == 0 ? this.años.push(this.round(año, 1)) : null;
-              //this.first == 0 ? this.años.push(this.round(año, 1)) : (this.maxDays<response.days&& dia>=response.days)?this.años.push(this.round(año,1)):null;
-              //let valor = response.beta_0 + (response.beta_1+response.beta_2)*((1-Math.exp(-1*(año/response.tau)))/(año/response.tau)) - response.beta_2*Math.exp(-1*(año/response.tau))
               let valor = response.beta_0 + ((response.beta_1 + response.beta_2) * ((1 - Math.exp(-1 * año / response.tau)) / (año / response.tau))) - response.beta_2 * Math.exp(-1 * año / response.tau)
-              //valor = Math.exp(valor/100)-1;
               let valor_corp = response.beta_0_r! + ((response.beta_1_r! + response.beta_2_r!) * ((1 - Math.exp(-1 * año / response.tau_r!)) / (año / response.tau_r!))) - response.beta_2_r! * Math.exp(-1 * año / response.tau_r!)
               let valor_sum = (valor / 100) + (valor_corp / 100)
               valor_sum = Math.exp(valor_sum) - 1
               this.curva.push(valor_sum * 100);
             }
             this.first = this.first + 1;
-            let color = ""
-            switch (this.pickedCurve) {
-              case 'BAAA12':
-                color = 'red';
-                break;
-              case 'BAAA2':
-                color = 'purple';
-                break;
-              case 'BAAA3':
-                color = 'green';
-                break;
-              default:
-                null;
-            }
+            
             this.chart.config._config.data.datasets.push({
               label: this.pickedCurve + "-" + `${this.pickedDate.year}-${this.pickedDate.month >= 10 ? this.pickedDate.month : "0" + this.pickedDate.month.toString()}-${this.pickedDate.day}`,
               data: this.curva,
@@ -220,8 +227,6 @@ export class AppComponent implements OnInit {
     
   }
 
-
-
   removeCurve(index: number) {
     this.curveList.splice(index, 1);
     this.chart.config._config.data.datasets.splice(index, 1);
@@ -246,19 +251,64 @@ export class AppComponent implements OnInit {
   }
 
   createChart() {
-    this.chart = new Chart("MyChart", {
+    this.chart = new Chart("CompareChart", {
       type: 'line', //this denotes tha type of chart
       data: {// values on X-Axis
         labels: this.años,
         datasets: []
       },
       options: {
+        responsive: true,
         maintainAspectRatio: false,
         //aspectRatio: 2.0,
         scales: {
+          x: {
+            display: true,
+            title: {
+              display:true,
+              text: "Años"
+            }
+          },
           y: {
-            suggestedMin: 10,
-            suggestedMax: 15
+            display: true,
+            title: {
+              display:true,
+              text: "Tasa (%)"
+            }
+          }
+        },
+        elements: {
+          point: {
+            radius: 0
+          }
+        }
+      }
+    });
+
+    this.spreadChart = new Chart("SpreadChart",{
+      type: 'line', //this denotes tha type of chart
+      data: {// values on X-Axis
+        labels: this.años,
+        datasets: []
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        //aspectRatio: 2.0,
+        scales: {
+          x: {
+            display: true,
+            title: {
+              display:true,
+              
+            }
+          },
+          y: {
+            display: true,
+            title: {
+              display:true,
+              
+            }
           }
         },
         elements: {

@@ -40,7 +40,7 @@
             </ul>
           </div>
         </td>
-        <th scope="col" class="align-middle" style="white-space: nowrap; cursor: pointer; width: 12%;" >SPREAD</th>
+        <th scope="col" class="align-middle" style="white-space: nowrap; cursor: pointer; width: 12%;" (click)="calculateSpread()">SPREAD</th>
 
       </tr>
     </thead>
@@ -55,7 +55,11 @@
       </tr>
     </tbody>
   </table>
-</div>
-<div class="chart-container">
-  <canvas  id="MyChart" style="width: 100%;">{{ chart }}</canvas>
-</div>
+  <div class="chart-container">
+    <canvas  id="CompareChart" style="width: 100%;">{{ chart }}</canvas>
+  </div>
+  <div class="chart-container" style="position: relative; height: 120px;">
+    <canvas  id="SpreadChart" style="width: 100%;">{{ spreadChart }}</canvas>
+  </div>
+</div> 
+
